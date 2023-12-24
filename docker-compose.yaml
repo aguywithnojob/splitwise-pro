@@ -29,8 +29,6 @@ services:
       - 8000
     networks:
       - splitwise-network
-    volumes:
-      - .:/splitwise-be
 
   frontend:
     depends_on: 
