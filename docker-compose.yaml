@@ -1,0 +1,54 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16.1-alpine3.19
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: splitwise
+    ports:
+      - 5432
+    networks:
+      - splitwise-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx_server:
+    build: ./nginx-server
+    ports:
+      - 80:80
+    networks:
+      - splitwise-network
+  
+  backend:
+    depends_on: 
+      - db
+    build: ./splitwise-api/splitwise_pro
+    ports:
+      - 8000
+    networks:
+      - splitwise-network
+    volumes:
+      - .:/splitwise-be
+
+  frontend:
+    depends_on: 
+      - backend
+    build: ./splitwise-pro
+    ports:
+      - 3000
+    networks:
+      - splitwise-network
+  
+volumes:
+  postgres_data: 
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/workspace/code/splitwise-volume
+  
+networks:
+  splitwise-network:
+    driver: bridge
